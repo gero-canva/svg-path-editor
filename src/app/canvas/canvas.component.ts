@@ -4,14 +4,13 @@ import { buffer, map, throttleTime } from 'rxjs/operators';
 import { Image } from '../image';
 import { Point, SvgPath, SvgControlPoint, SvgItem, SvgPoint } from '../../lib/svg';
 import { NgClass, NgStyle } from '@angular/common';
-import { ExpandableComponent } from '../expandable/expandable.component';
 
 /* eslint-disable @angular-eslint/component-selector */
 @Component({
     selector: '[app-canvas]',
     templateUrl: './canvas.component.html',
     styleUrls: ['./canvas.component.css'],
-    imports: [NgClass, NgStyle, ExpandableComponent]
+    imports: [NgClass, NgStyle]
 })
 export class CanvasComponent implements OnInit, OnChanges, AfterViewInit {
   canvas = inject(ElementRef);
