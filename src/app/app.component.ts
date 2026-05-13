@@ -646,7 +646,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       if (autozoom) {
         this.zoomAuto();
       }
-    } catch (e) {
+    } catch {
       this.invalidSyntax = true;
       if (!this.parsedPath) {
         this.parsedPath = new SvgPath('');

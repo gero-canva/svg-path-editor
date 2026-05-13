@@ -52,7 +52,7 @@ export class ImportComponent implements OnInit {
       try {
         const _ = new SvgPath(path);
         return path;
-      } catch (e) { /* */ }
+      } catch { /* */ }
     }
     return '';
   }

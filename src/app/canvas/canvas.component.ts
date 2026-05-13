@@ -317,7 +317,6 @@ export class CanvasComponent implements OnInit, OnChanges, AfterViewInit {
       event.stopPropagation();
       if (this.draggedImage && this.draggedEvt) {
         const oriPt = this.eventToLocation(this.draggedEvt);
-        /* eslint-disable no-bitwise */
         if (this.draggedImageType & 0b0001) {
           this.draggedImage.x1 += (pt.x - oriPt.x);
         }
@@ -330,7 +329,6 @@ export class CanvasComponent implements OnInit, OnChanges, AfterViewInit {
         if (this.draggedImageType & 0b1000) {
           this.draggedImage.y2 += (pt.y - oriPt.y);
         }
-        /* eslint-enable no-bitwise */
         this.draggedEvt = event;
 
       } else if (this.draggedPoint && this.parsedPath) {
