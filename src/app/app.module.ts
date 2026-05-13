@@ -3,7 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule, MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
@@ -38,72 +38,65 @@ import { CopiedSnackbarComponent } from './copied-snackbar/copied-snackbar.compo
 const isRunningInTauri = '__TAURI_INTERNALS__' in (window as Window & { __TAURI_INTERNALS__?: unknown })
   || window.location.protocol === 'tauri:';
 
-@NgModule({
-  declarations: [
-    AppComponent,
-    ExpandableComponent,
-    CanvasComponent,
-    OpenComponent,
-    OpenDialogComponent,
-    SaveComponent,
-    SaveDialogComponent,
-    ExportComponent,
-    ExportDialogComponent,
-    UploadImageComponent,
-    UploadImageDialogComponent,
-    ImportComponent,
-    ImportDialogComponent,
-    ShareComponent,
-    ShareDialogComponent,
-    CopiedSnackbarComponent,
-    FormatterDirective,
-    KeyboardNavigableDirective,
-    PathPreviewComponent
-  ],
-  imports: [
-    BrowserModule,
-    HttpClientModule,
-    FormsModule,
-    MatInputModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatCheckboxModule,
-    MatMenuModule,
-    MatTooltipModule,
-    MatDialogModule,
-    MatTableModule,
-    MatSortModule,
-    MatSliderModule,
-    MatSnackBarModule,
-    BrowserAnimationsModule,
-    ScrollingModule,
-    ServiceWorkerModule.register('ngsw-worker.js', {
-      enabled: !isDevMode() && !isRunningInTauri,
-      // Register the ServiceWorker as soon as the application is stable
-      // or after 30 seconds (whichever comes first).
-      registrationStrategy: 'registerWhenStable:30000'
-    })
-  ],
-  providers: [{
-    provide: MAT_TOOLTIP_SCROLL_STRATEGY,
-    deps: [Overlay],
-    useFactory(overlay: Overlay): () => ScrollStrategy {
-      return () => overlay.scrollStrategies.close();
-    }
-  }, {
-    provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
-    useValue: {
-      appearance: 'fill',
-      floatLabels: 'always',
-      color: 'accent'
-    }
-  }, {
-      provide: MAT_TOOLTIP_DEFAULT_OPTIONS,
-      useValue: {
-        disableTooltipInteractivity: true,
-      }
-  }],
-  bootstrap: [AppComponent]
-})
+@NgModule({ declarations: [
+        AppComponent,
+        ExpandableComponent,
+        CanvasComponent,
+        OpenComponent,
+        OpenDialogComponent,
+        SaveComponent,
+        SaveDialogComponent,
+        ExportComponent,
+        ExportDialogComponent,
+        UploadImageComponent,
+        UploadImageDialogComponent,
+        ImportComponent,
+        ImportDialogComponent,
+        ShareComponent,
+        ShareDialogComponent,
+        CopiedSnackbarComponent,
+        FormatterDirective,
+        KeyboardNavigableDirective,
+        PathPreviewComponent
+    ],
+    bootstrap: [AppComponent], imports: [BrowserModule,
+        FormsModule,
+        MatInputModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatCheckboxModule,
+        MatMenuModule,
+        MatTooltipModule,
+        MatDialogModule,
+        MatTableModule,
+        MatSortModule,
+        MatSliderModule,
+        MatSnackBarModule,
+        BrowserAnimationsModule,
+        ScrollingModule,
+        ServiceWorkerModule.register('ngsw-worker.js', {
+            enabled: !isDevMode() && !isRunningInTauri,
+            // Register the ServiceWorker as soon as the application is stable
+            // or after 30 seconds (whichever comes first).
+            registrationStrategy: 'registerWhenStable:30000'
+        })], providers: [{
+            provide: MAT_TOOLTIP_SCROLL_STRATEGY,
+            deps: [Overlay],
+            useFactory(overlay: Overlay): () => ScrollStrategy {
+                return () => overlay.scrollStrategies.close();
+            }
+        }, {
+            provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
+            useValue: {
+                appearance: 'fill',
+                floatLabels: 'always',
+                color: 'accent'
+            }
+        }, {
+            provide: MAT_TOOLTIP_DEFAULT_OPTIONS,
+            useValue: {
+                disableTooltipInteractivity: true,
+            }
+        }, provideHttpClient(withInterceptorsFromDi())] })
 export class AppModule { }
