@@ -1,11 +1,10 @@
-FROM node:current
+FROM node:24-alpine
 
 RUN mkdir -p /app
 WORKDIR /app
 
-COPY package.json .
-RUN npm install -g npm@latest
-RUN npm install
+COPY package.json package-lock.json .
+RUN npm ci
 
 COPY . .
 
