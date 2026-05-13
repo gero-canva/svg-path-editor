@@ -9,6 +9,10 @@
     "build-prod": "ng build --configuration production --base-href=/svg-path-editor/",
     "test": "ng test",
     "lint": "ng lint",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "install-bin": "mkdir -p \"$HOME/bin\" && test -f src-tauri/target/release/svg-path-editor && install -m 755 src-tauri/target/release/svg-path-editor \"$HOME/bin/svg-path-editor\"",
     "build-lib": "rimraf ./src/lib/dist &&  tsdown"
   },
   "private": true,
@@ -24,6 +28,7 @@
     "@angular/platform-browser-dynamic": "^17.3.2",
     "@angular/router": "^17.3.2",
     "@angular/service-worker": "^17.3.2",
+    "@tauri-apps/api": "^2.11.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.4"
@@ -37,6 +42,7 @@
     "@angular-eslint/template-parser": "17.3.0",
     "@angular/cli": "~17.3.2",
     "@angular/compiler-cli": "^17.3.2",
+    "@tauri-apps/cli": "^2.11.1",
     "@types/jasmine": "~4.3.0",
     "@typescript-eslint/eslint-plugin": "7.4.0",
     "@typescript-eslint/parser": "7.4.0",

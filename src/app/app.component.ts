@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, HostListener, ViewChild } from '@angular/core';
+import { Component, AfterViewInit, HostListener, NgZone, OnDestroy, ViewChild } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 import { SvgPath, SvgItem, Point, SvgPoint, SvgControlPoint, formatNumber } from '../lib/svg';
 import type { SvgCommandType, SvgCommandTypeAny } from '../lib/svg-command-types';
@@ -6,6 +6,10 @@ import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import { StorageService } from './storage.service';
 import { CanvasComponent } from './canvas/canvas.component';
+import { OpenComponent } from './open/open.component';
+import { SaveComponent } from './save/save.component';
+import { ExportComponent } from './export/export.component';
+import { ShareComponent } from './share/share.component';
 import { Image } from './image';
 import { UploadImageComponent } from './upload-image/upload-image.component';
 import { ConfigService } from './config.service';
@@ -18,6 +22,20 @@ import { KEYBOARD } from './constants/keyboard.const';
 export const kDefaultPath = `M 4 8 L 10 1 L 13 0 L 12 3 L 5 9 C 6 10 6 11 7 10 C 7 11 8 12 7 12 A 1.42 1.42 0 0 1 6 13 `
 + `A 5 5 0 0 0 4 10 Q 3.5 9.9 3.5 10.5 T 2 11.8 T 1.2 11 T 2.5 9.5 T 3 9 A 5 5 90 0 0 0 7 A 1.42 1.42 0 0 1 1 6 `
 + `C 1 5 2 6 3 6 C 2 7 3 7 4 8 M 10 1 L 10 3 L 12 3 L 10.2 2.8 L 10 1`;
+
+type EditorCommand = 'new-path'
+  | 'open-paths'
+  | 'save-path'
+  | 'export-svg'
+  | 'undo'
+  | 'redo'
+  | 'delete-selection'
+  | 'zoom-in'
+  | 'zoom-out'
+  | 'zoom-fit'
+  | 'toggle-sidebar';
+
+type TauriWindow = Window & { __TAURI_INTERNALS__?: unknown };
 
 @Component({
   selector: 'app-root',
@@ -34,7 +52,7 @@ export const kDefaultPath = `M 4 8 L 10 1 L 13 0 L 12 3 L 5 9 C 6 10 6 11 7 10 C
     ])
   ]
 })
-export class AppComponent implements AfterViewInit {
+export class AppComponent implements AfterViewInit, OnDestroy {
   // SvgPath path data model:
   parsedPath: SvgPath;
   targetPoints: SvgPoint[] = [];
@@ -62,6 +80,10 @@ export class AppComponent implements AfterViewInit {
 
   // Canvas Data:
   @ViewChild(CanvasComponent) canvas?: CanvasComponent;
+  @ViewChild('nativeOpen') openComponent?: OpenComponent;
+  @ViewChild('nativeSave') saveComponent?: SaveComponent;
+  @ViewChild(ExportComponent) exportComponent?: ExportComponent;
+  @ViewChild(ShareComponent) shareComponent?: ShareComponent;
   canvasWidth = 100;
   canvasHeight = 100;
   strokeWidth = 1;
@@ -89,12 +111,14 @@ export class AppComponent implements AfterViewInit {
   max = Math.max;
   trackByIndex = (idx: number, _: unknown) => idx;
   formatNumber = (v: number) => formatNumber(v, 4);
+  private unlistenNativeCommand?: () => void;
 
   constructor(
     matRegistry: MatIconRegistry,
     sanitizer: DomSanitizer,
     public cfg: ConfigService,
-    private storage: StorageService
+    private storage: StorageService,
+    private zone: NgZone
   ) {
     for (const icon of ['delete', 'logo', 'more', 'github', 'zoom_in', 'zoom_out', 'zoom_fit', 'sponsor']) {
       matRegistry.addSvgIcon(icon, sanitizer.bypassSecurityTrustResourceUrl(`./assets/${icon}.svg`));
@@ -104,12 +128,17 @@ export class AppComponent implements AfterViewInit {
   }
 
   @HostListener('document:keydown', ['$event']) onKeyDown($event: KeyboardEvent) {
-    const tag = $event.target instanceof Element ? $event.target.tagName : null;
-    if (tag !== 'INPUT' && tag !== 'TEXTAREA') {
+    if (!this.isEditableTarget($event.target)) {
       if ($event.shiftKey && ($event.metaKey || $event.ctrlKey) && $event.key.toLowerCase() === KEYBOARD.KEYS.UNDO) {
+        if (this.isRunningInTauri()) {
+          return;
+        }
         this.redo();
         $event.preventDefault();
       } else if (($event.metaKey || $event.ctrlKey) && $event.key.toLowerCase() === KEYBOARD.KEYS.UNDO) {
+        if (this.isRunningInTauri()) {
+          return;
+        }
         this.undo();
         $event.preventDefault();
       } else if (!$event.metaKey && !$event.ctrlKey && KEYBOARD.PATTERNS.SVG_COMMAND.test($event.key)) {
@@ -138,12 +167,7 @@ export class AppComponent implements AfterViewInit {
         }
         $event.preventDefault();
       } else if (!$event.metaKey && !$event.ctrlKey && ($event.key === KEYBOARD.KEYS.DELETE || $event.key === KEYBOARD.KEYS.BACKSPACE)) {
-        if (this.focusedItem && this.canDelete(this.focusedItem)) {
-          this.delete(this.focusedItem);
-          $event.preventDefault();
-        }
-        if (this.focusedImage) {
-          this.deleteImage(this.focusedImage);
+        if (this.deleteSelection()) {
           $event.preventDefault();
         }
       }
@@ -154,9 +178,85 @@ export class AppComponent implements AfterViewInit {
  }
 
   ngAfterViewInit() {
+    void this.setupNativeCommandListener();
     setTimeout(() => {
       this.zoomAuto();
     }, 0);
+  }
+
+  ngOnDestroy(): void {
+    this.unlistenNativeCommand?.();
+  }
+
+  private async setupNativeCommandListener(): Promise<void> {
+    if (!this.isRunningInTauri()) {
+      return;
+    }
+
+    const { listen } = await import('@tauri-apps/api/event');
+    this.unlistenNativeCommand = await listen<string>('native-command', event => {
+      this.zone.run(() => this.executeEditorCommand(event.payload as EditorCommand));
+    });
+  }
+
+  private isRunningInTauri(): boolean {
+    return '__TAURI_INTERNALS__' in (window as TauriWindow) || window.location.protocol === 'tauri:';
+  }
+
+  private isEditableTarget(target: EventTarget | null): boolean {
+    if (!(target instanceof Element)) {
+      return false;
+    }
+
+    const tag = target.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
+      return true;
+    }
+
+    const editable = target.closest('[contenteditable]');
+    return editable !== null && editable.getAttribute('contenteditable') !== 'false';
+  }
+
+  executeEditorCommand(command: EditorCommand): void {
+    switch (command) {
+      case 'new-path':
+        this.reloadPath('', false);
+        break;
+      case 'open-paths':
+        this.openComponent?.openDialog();
+        break;
+      case 'save-path':
+        this.saveComponent?.openDialog();
+        break;
+      case 'export-svg':
+        this.exportComponent?.openDialog();
+        break;
+      case 'undo':
+        if (!this.isEditableTarget(document.activeElement)) {
+          this.undo();
+        }
+        break;
+      case 'redo':
+        if (!this.isEditableTarget(document.activeElement)) {
+          this.redo();
+        }
+        break;
+      case 'delete-selection':
+        this.deleteSelection();
+        break;
+      case 'zoom-in':
+        this.zoomIn();
+        break;
+      case 'zoom-out':
+        this.zoomOut();
+        break;
+      case 'zoom-fit':
+        this.zoomFit();
+        break;
+      case 'toggle-sidebar':
+        this.toggleLeftPanel();
+        break;
+    }
   }
 
   get rawPath(): string {
@@ -325,6 +425,21 @@ export class AppComponent implements AfterViewInit {
     );
   }
 
+  zoomIn(): void {
+    this.cfg.viewPortLocked = false;
+    this.canvas?.zoomViewPort(9 / 10);
+  }
+
+  zoomOut(): void {
+    this.cfg.viewPortLocked = false;
+    this.canvas?.zoomViewPort(10 / 9);
+  }
+
+  zoomFit(): void {
+    this.cfg.viewPortLocked = false;
+    this.zoomAuto();
+  }
+
   scale(x: number, y: number) {
     this.parsedPath.scale(1 * x, 1 * y);
     this.scaleX = 1;
@@ -378,6 +493,19 @@ export class AppComponent implements AfterViewInit {
     this.focusedItem = null;
     this.parsedPath.delete(item);
     this.afterModelChange();
+  }
+
+  deleteSelection(): boolean {
+    let deleted = false;
+    if (this.focusedItem && this.canDelete(this.focusedItem)) {
+      this.delete(this.focusedItem);
+      deleted = true;
+    }
+    if (this.focusedImage) {
+      this.deleteImage(this.focusedImage);
+      deleted = true;
+    }
+    return deleted;
   }
 
   useAsOrigin(item: SvgItem, subpathOnly?: boolean) {

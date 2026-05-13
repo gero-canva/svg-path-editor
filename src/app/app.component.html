@@ -403,7 +403,7 @@
             <button
                 mat-mini-fab
                 color="primary"
-                (click)="cfg.viewPortLocked=false;canvas?.zoomViewPort(9/10)"
+                (click)="zoomIn()"
                 matTooltip="Zoom In"
                 matTooltipPosition="left"
                 style="margin-top: 24px"
@@ -413,7 +413,7 @@
             <button
                 mat-mini-fab
                 color="primary"
-                (click)="cfg.viewPortLocked=false;zoomAuto()"
+                (click)="zoomFit()"
                 matTooltip="Zoom to Fit"
                 matTooltipPosition="left"
             >
@@ -422,7 +422,7 @@
             <button
                 mat-mini-fab
                 color="primary"
-                (click)="cfg.viewPortLocked=false;canvas?.zoomViewPort(10/9)"
+                (click)="zoomOut()"
                 matTooltip="Zoom Out"
                 matTooltipPosition="left"
             >
@@ -480,6 +480,8 @@
 </div>
 
 <app-import (importPath)="openPath($event, '')"></app-import>
+<app-open #nativeOpen (openPath)="openPath($event.path, $event.name)" style="display: none;"></app-open>
+<app-save #nativeSave [path]="rawPath" [(name)]="pathName" style="display: none;"></app-save>
 
 <mat-menu #appMenu="matMenu"  xPosition="before">
     <ng-template matMenuContent let-item="item"  let-idx="idx">

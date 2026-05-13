@@ -64,6 +64,17 @@ Run `npm start` for a dev server. Navigate to `http://localhost:4200/`. The app 
 ##### Build
 Run `npm run build` to build the project. The build artifacts will be stored in the `dist/` directory.
 
+##### Desktop app
+Run `npm run tauri:dev` to launch the local Tauri desktop wrapper during development.
+
+Run `npm run tauri:build` to build an unsigned macOS desktop app. The `.app` and `.dmg` outputs are written under `src-tauri/target/release/bundle/`. Since these builds are unsigned, macOS may require right-clicking the app and choosing **Open** the first time.
+
+Run `npm run install-bin` after `npm run tauri:build` to copy the finalized release executable to `~/bin/svg-path-editor`.
+
+The desktop app exposes native menu accelerators for standard commands such as new path, open saved path, save path, export, undo, redo, zoom, and toggling the sidebar. SVG command-letter shortcuts remain handled inside the editor canvas.
+
+Roboto and Material Icons are bundled under `src/assets/fonts/` so the app does not depend on Google-hosted font assets at runtime. Google Analytics has been removed.
+
 ##### Running unit tests
 Run `npm test` to execute the unit tests via [Karma](https://karma-runner.github.io).
 

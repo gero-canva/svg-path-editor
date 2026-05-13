@@ -35,6 +35,9 @@ import { ImportComponent, ImportDialogComponent } from './import/import.componen
 import { ShareComponent, ShareDialogComponent } from './share/share.component';
 import { CopiedSnackbarComponent } from './copied-snackbar/copied-snackbar.component';
 
+const isRunningInTauri = '__TAURI_INTERNALS__' in (window as Window & { __TAURI_INTERNALS__?: unknown })
+  || window.location.protocol === 'tauri:';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -76,7 +79,7 @@ import { CopiedSnackbarComponent } from './copied-snackbar/copied-snackbar.compo
     BrowserAnimationsModule,
     ScrollingModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
-      enabled: !isDevMode(),
+      enabled: !isDevMode() && !isRunningInTauri,
       // Register the ServiceWorker as soon as the application is stable
       // or after 30 seconds (whichever comes first).
       registrationStrategy: 'registerWhenStable:30000'
