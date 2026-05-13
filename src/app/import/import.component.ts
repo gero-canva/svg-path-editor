@@ -1,8 +1,11 @@
 import { Component, Output, EventEmitter, OnInit, Inject } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA, MatDialogTitle, MatDialogContent, MatDialogActions } from '@angular/material/dialog';
 import { kDefaultPath } from '../app.component';
 import { StorageService } from '../storage.service';
 import { SvgPath } from '../../lib/svg';
+import { CdkScrollable } from '@angular/cdk/scrolling';
+import { PathPreviewComponent } from '../path-preview/path-preview.component';
+import { MatButton } from '@angular/material/button';
 
 export class DialogData {
   path?: string;
@@ -11,7 +14,7 @@ export class DialogData {
 @Component({
     selector: 'app-import-dialog',
     templateUrl: 'import-dialog.component.html',
-    standalone: false
+    imports: [MatDialogTitle, CdkScrollable, MatDialogContent, PathPreviewComponent, MatDialogActions, MatButton]
 })
 export class ImportDialogComponent {
   constructor(
@@ -30,8 +33,7 @@ export class ImportDialogComponent {
 
 @Component({
     selector: 'app-import',
-    template: '',
-    standalone: false
+    template: ''
 })
 export class ImportComponent implements OnInit {
   private urlPath?: string;

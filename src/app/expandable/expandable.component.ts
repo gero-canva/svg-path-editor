@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
     selector: 'app-expandable',
@@ -12,7 +13,7 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
             transition(':leave', [animate('100ms ease', style({ height: '0' }))]),
         ])
     ],
-    standalone: false
+    imports: [MatIcon]
 })
 export class ExpandableComponent {
   @Input() opened = true;

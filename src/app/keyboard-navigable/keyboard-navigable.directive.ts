@@ -1,9 +1,6 @@
 import { Directive, ElementRef, HostListener, Input } from '@angular/core';
 
-@Directive({
-    selector: '[appKeyboardNavigable]',
-    standalone: false
-})
+@Directive({ selector: '[appKeyboardNavigable]' })
 export class KeyboardNavigableDirective {
   @Input() keyboardNavigableIdPrefix = '';
 

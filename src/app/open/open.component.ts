@@ -1,9 +1,13 @@
 import { Component, Inject, Output, EventEmitter, ViewChild, AfterViewInit } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA, MatDialogTitle, MatDialogContent, MatDialogActions } from '@angular/material/dialog';
+import { MatSort, MatSortHeader } from '@angular/material/sort';
+import { MatTableDataSource, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
 import { StorageService } from '../storage.service';
 import { SvgPath } from '../../lib/svg';
+import { MatMiniFabButton, MatButton } from '@angular/material/button';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatIcon } from '@angular/material/icon';
+import { CdkScrollable } from '@angular/cdk/scrolling';
 
 export class DialogData {
   name?: string;
@@ -13,7 +17,7 @@ export class DialogData {
     selector: 'app-open-dialog',
     templateUrl: 'open-dialog.component.html',
     styleUrls: ['./open-dialog.component.css'],
-    standalone: false
+    imports: [MatDialogTitle, CdkScrollable, MatDialogContent, MatTable, MatSort, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatSortHeader, MatCellDef, MatCell, MatMiniFabButton, MatTooltip, MatIcon, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, MatDialogActions, MatButton]
 })
 export class OpenDialogComponent implements AfterViewInit {
   constructor(
@@ -77,7 +81,7 @@ export class OpenDialogComponent implements AfterViewInit {
     selector: 'app-open',
     templateUrl: './open.component.html',
     styleUrls: ['./open.component.css'],
-    standalone: false
+    imports: [MatMiniFabButton, MatTooltip, MatIcon]
 })
 export class OpenComponent {
   @Output() openPath = new EventEmitter<{name: string, path: string}>();
