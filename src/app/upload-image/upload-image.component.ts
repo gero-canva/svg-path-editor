@@ -4,9 +4,10 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Image } from '../image';
 
 @Component({
-  selector: 'app-upload-image-dialog',
-  templateUrl: 'upload-image-dialog.component.html',
-  styleUrls: ['./upload-image-dialog.component.scss']
+    selector: 'app-upload-image-dialog',
+    templateUrl: 'upload-image-dialog.component.html',
+    styleUrls: ['./upload-image-dialog.component.scss'],
+    standalone: false
 })
 export class UploadImageDialogComponent {
   data: string | null = null;
@@ -77,8 +78,9 @@ export class UploadImageDialogComponent {
 }
 
 @Component({
-  selector: 'app-upload-image',
-  templateUrl: './upload-image.component.html'
+    selector: 'app-upload-image',
+    templateUrl: './upload-image.component.html',
+    standalone: false
 })
 export class UploadImageComponent {
   @Output() addImage = new EventEmitter<Image>();

@@ -13,9 +13,10 @@ interface DialogData {
 }
 
 @Component({
-  selector: 'app-export-dialog',
-  templateUrl: 'export-dialog.component.html',
-  styleUrls: ['./export-dialog.component.scss']
+    selector: 'app-export-dialog',
+    templateUrl: 'export-dialog.component.html',
+    styleUrls: ['./export-dialog.component.scss'],
+    standalone: false
 })
 export class ExportDialogComponent {
   x = 0;
@@ -101,8 +102,9 @@ export class ExportDialogComponent {
 
 
 @Component({
-  selector: 'app-export',
-  templateUrl: './export.component.html'
+    selector: 'app-export',
+    templateUrl: './export.component.html',
+    standalone: false
 })
 export class ExportComponent {
   @Input() path = '';

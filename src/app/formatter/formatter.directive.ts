@@ -2,7 +2,8 @@ import { Directive, ElementRef, EventEmitter, HostListener, Input, OnChanges, Ou
 import { formatNumber } from '../../lib/svg';
 
 @Directive({
-  selector: '[appFormatter]'
+    selector: '[appFormatter]',
+    standalone: false
 })
 export class FormatterDirective implements OnChanges {
   @Input() formatterType: 'float'|'positive-float'|'integer'|'positive-integer' = 'float';

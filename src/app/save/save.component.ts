@@ -7,8 +7,9 @@ export interface DialogData {
 }
 
 @Component({
-  selector: 'app-save-dialog',
-  templateUrl: 'save-dialog.component.html',
+    selector: 'app-save-dialog',
+    templateUrl: 'save-dialog.component.html',
+    standalone: false
 })
 export class SaveDialogComponent {
   constructor(
@@ -26,9 +27,10 @@ export class SaveDialogComponent {
 }
 
 @Component({
-  selector: 'app-save',
-  templateUrl: './save.component.html',
-  styleUrls: ['./save.component.css']
+    selector: 'app-save',
+    templateUrl: './save.component.html',
+    styleUrls: ['./save.component.css'],
+    standalone: false
 })
 export class SaveComponent {
   @Input() path = '';

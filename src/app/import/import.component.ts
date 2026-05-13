@@ -9,8 +9,9 @@ export class DialogData {
 }
 
 @Component({
-  selector: 'app-import-dialog',
-  templateUrl: 'import-dialog.component.html'
+    selector: 'app-import-dialog',
+    templateUrl: 'import-dialog.component.html',
+    standalone: false
 })
 export class ImportDialogComponent {
   constructor(
@@ -28,8 +29,9 @@ export class ImportDialogComponent {
 }
 
 @Component({
-  selector: 'app-import',
-  template: ''
+    selector: 'app-import',
+    template: '',
+    standalone: false
 })
 export class ImportComponent implements OnInit {
   private urlPath?: string;

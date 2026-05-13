@@ -38,19 +38,20 @@ type EditorCommand = 'new-path'
 type TauriWindow = Window & { __TAURI_INTERNALS__?: unknown };
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
-  animations: [
-    trigger('leftColumnParent', [
-      transition(':enter', [])
-    ]),
-    trigger('leftColumn', [
-      state('*', style({'max-width': '310px'})),
-      transition(':enter', [style({'max-width': '0'}), animate('100ms ease')]),
-      transition(':leave', [animate('100ms ease', style({'max-width': '0'}))])
-    ])
-  ]
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.scss'],
+    animations: [
+        trigger('leftColumnParent', [
+            transition(':enter', [])
+        ]),
+        trigger('leftColumn', [
+            state('*', style({ 'max-width': '310px' })),
+            transition(':enter', [style({ 'max-width': '0' }), animate('100ms ease')]),
+            transition(':leave', [animate('100ms ease', style({ 'max-width': '0' }))])
+        ])
+    ],
+    standalone: false
 })
 export class AppComponent implements AfterViewInit, OnDestroy {
   // SvgPath path data model:

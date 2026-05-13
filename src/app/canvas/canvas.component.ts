@@ -6,9 +6,10 @@ import { Point, SvgPath, SvgControlPoint, SvgItem, SvgPoint } from '../../lib/sv
 
 /* eslint-disable @angular-eslint/component-selector */
 @Component({
-  selector: '[app-canvas]',
-  templateUrl: './canvas.component.html',
-  styleUrls: ['./canvas.component.css']
+    selector: '[app-canvas]',
+    templateUrl: './canvas.component.html',
+    styleUrls: ['./canvas.component.css'],
+    standalone: false
 })
 export class CanvasComponent implements OnInit, OnChanges, AfterViewInit {
   get canvasWidth(): number { return this._canvasWidth; }

@@ -9,8 +9,9 @@ export class DialogData {
 }
 
 @Component({
-  selector: 'app-share-dialog',
-  templateUrl: 'share-dialog.component.html'
+    selector: 'app-share-dialog',
+    templateUrl: 'share-dialog.component.html',
+    standalone: false
 })
 export class ShareDialogComponent implements AfterViewInit {
   @ViewChild('input') inputField?: ElementRef;
@@ -54,8 +55,9 @@ export class ShareDialogComponent implements AfterViewInit {
 }
 
 @Component({
-  selector: 'app-share',
-  templateUrl: './share.component.html'
+    selector: 'app-share',
+    templateUrl: './share.component.html',
+    standalone: false
 })
 export class ShareComponent {
   @Input() path = '';
