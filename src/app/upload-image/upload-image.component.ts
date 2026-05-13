@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter, inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions } from '@angular/material/dialog';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Image } from '../image';
@@ -17,6 +17,9 @@ import { MatCheckbox } from '@angular/material/checkbox';
     imports: [MatDialogTitle, CdkScrollable, MatDialogContent, MatButton, MatFormField, MatLabel, MatInput, FormsModule, MatCheckbox, MatDialogActions]
 })
 export class UploadImageDialogComponent {
+  dialogRef = inject<MatDialogRef<UploadImageDialogComponent>>(MatDialogRef);
+  domSanitizer = inject(DomSanitizer);
+
   data: string | null = null;
   displayableData: SafeResourceUrl | null = null;
   name = '';
@@ -25,12 +28,6 @@ export class UploadImageDialogComponent {
   width = '20';
   height = '20';
   preserveAspectRatio = true;
-
-  constructor(
-    public dialogRef: MatDialogRef<UploadImageDialogComponent>,
-    public domSanitizer: DomSanitizer
-  ) {
-  }
   private importFile(file: File) {
     if (window.FileReader !== undefined) {
       const reader = new FileReader();
@@ -90,12 +87,10 @@ export class UploadImageDialogComponent {
     imports: [MatMiniFabButton, MatTooltip, MatIcon]
 })
 export class UploadImageComponent {
+  dialog = inject(MatDialog);
+
   @Output() addImage = new EventEmitter<Image>();
   @Output() cancel = new EventEmitter<void>();
-
-  constructor(
-    public dialog: MatDialog,
-  ) {}
 
   openDialog(): void {
     const dialogRef = this.dialog.open(UploadImageDialogComponent, {

@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, HostListener, NgZone, OnDestroy, ViewChild } from '@angular/core';
+import { Component, AfterViewInit, HostListener, NgZone, OnDestroy, ViewChild, inject } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 import { SvgPath, SvgItem, Point, SvgPoint, SvgControlPoint, formatNumber } from '../lib/svg';
 import type { SvgCommandType, SvgCommandTypeAny } from '../lib/svg-command-types';
@@ -66,6 +66,10 @@ type TauriWindow = Window & { __TAURI_INTERNALS__?: unknown };
     imports: [MatButton, MatIcon, CdkScrollable, ExpandableComponent, FormsModule, MatTooltip, OpenComponent, SaveComponent, MatMiniFabButton, MatMenuTrigger, NgClass, FormatterDirective, MatCheckbox, KeyboardNavigableDirective, MatIconButton, NgStyle, UploadImageComponent, ExportComponent, ShareComponent, CanvasComponent, ImportComponent, MatMenu, MatMenuContent, MatMenuItem, MatSlider, MatSliderThumb]
 })
 export class AppComponent implements AfterViewInit, OnDestroy {
+  cfg = inject(ConfigService);
+  private storage = inject(StorageService);
+  private zone = inject(NgZone);
+
   // SvgPath path data model:
   parsedPath: SvgPath;
   targetPoints: SvgPoint[] = [];
@@ -126,13 +130,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   formatNumber = (v: number) => formatNumber(v, 4);
   private unlistenNativeCommand?: () => void;
 
-  constructor(
-    matRegistry: MatIconRegistry,
-    sanitizer: DomSanitizer,
-    public cfg: ConfigService,
-    private storage: StorageService,
-    private zone: NgZone
-  ) {
+  constructor() {
+    const matRegistry = inject(MatIconRegistry);
+    const sanitizer = inject(DomSanitizer);
+
     for (const icon of ['delete', 'logo', 'more', 'github', 'zoom_in', 'zoom_out', 'zoom_fit', 'sponsor']) {
       matRegistry.addSvgIcon(icon, sanitizer.bypassSecurityTrustResourceUrl(`./assets/${icon}.svg`));
     }

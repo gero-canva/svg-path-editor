@@ -1,4 +1,4 @@
-import { Component, Inject, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA, MatDialogTitle, MatDialogContent, MatDialogActions } from '@angular/material/dialog';
 import { StorageService } from '../storage.service';
 import { MatMiniFabButton, MatButton } from '@angular/material/button';
@@ -18,12 +18,10 @@ export interface DialogData {
     imports: [MatDialogTitle, CdkScrollable, MatDialogContent, MatFormField, MatLabel, MatInput, FormsModule, MatDialogActions, MatButton]
 })
 export class SaveDialogComponent {
-  constructor(
-    public dialogRef: MatDialogRef<SaveDialogComponent>,
-    public storageService: StorageService,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData
-  ) {
-  }
+  dialogRef = inject<MatDialogRef<SaveDialogComponent>>(MatDialogRef);
+  storageService = inject(StorageService);
+  data = inject<DialogData>(MAT_DIALOG_DATA);
+
   onCancel(): void {
     this.dialogRef.close();
   }
@@ -39,14 +37,12 @@ export class SaveDialogComponent {
     imports: [MatMiniFabButton, MatTooltip, MatIcon]
 })
 export class SaveComponent {
+  dialog = inject(MatDialog);
+  storageService = inject(StorageService);
+
   @Input() path = '';
   @Input() name = '';
   @Output() nameChange = new EventEmitter<string>();
-
-  constructor(
-    public dialog: MatDialog,
-    public storageService: StorageService,
-  ) {}
 
   openDialog(): void {
     let name = this.name;
