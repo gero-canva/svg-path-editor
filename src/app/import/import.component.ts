@@ -1,23 +1,25 @@
-import { Component, Output, EventEmitter, OnInit, Inject } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Component, Output, EventEmitter, OnInit, inject } from '@angular/core';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA, MatDialogTitle, MatDialogContent, MatDialogActions } from '@angular/material/dialog';
 import { kDefaultPath } from '../app.component';
 import { StorageService } from '../storage.service';
 import { SvgPath } from '../../lib/svg';
+import { CdkScrollable } from '@angular/cdk/scrolling';
+import { PathPreviewComponent } from '../path-preview/path-preview.component';
+import { MatButton } from '@angular/material/button';
 
 export class DialogData {
   path?: string;
 }
 
 @Component({
-  selector: 'app-import-dialog',
-  templateUrl: 'import-dialog.component.html'
+    selector: 'app-import-dialog',
+    templateUrl: 'import-dialog.component.html',
+    imports: [MatDialogTitle, CdkScrollable, MatDialogContent, PathPreviewComponent, MatDialogActions, MatButton]
 })
 export class ImportDialogComponent {
-  constructor(
-    public dialogRef: MatDialogRef<ImportDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData
-  ) {
-  }
+  dialogRef = inject<MatDialogRef<ImportDialogComponent>>(MatDialogRef);
+  data = inject<DialogData>(MAT_DIALOG_DATA);
+
 
   onConfirm(): void {
     this.dialogRef.close(true);
@@ -28,17 +30,17 @@ export class ImportDialogComponent {
 }
 
 @Component({
-  selector: 'app-import',
-  template: ''
+    selector: 'app-import',
+    template: ''
 })
 export class ImportComponent implements OnInit {
+  dialog = inject(MatDialog);
+  storageService = inject(StorageService);
+
   private urlPath?: string;
   @Output() importPath = new EventEmitter<string>();
 
-  constructor(
-    public dialog: MatDialog,
-    public storageService: StorageService,
-  ) {
+  constructor() {
     this.urlPath = this.readPath();
   }
 
@@ -50,7 +52,7 @@ export class ImportComponent implements OnInit {
       try {
         const _ = new SvgPath(path);
         return path;
-      } catch (e) { /* */ }
+      } catch { /* */ }
     }
     return '';
   }

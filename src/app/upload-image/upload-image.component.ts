@@ -1,14 +1,25 @@
-import { Component, Output, EventEmitter } from '@angular/core';
-import { MatDialog, MatDialogRef} from '@angular/material/dialog';
+import { Component, Output, EventEmitter, inject } from '@angular/core';
+import { MatDialog, MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions } from '@angular/material/dialog';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Image } from '../image';
+import { MatMiniFabButton, MatButton } from '@angular/material/button';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatIcon } from '@angular/material/icon';
+import { CdkScrollable } from '@angular/cdk/scrolling';
+import { MatFormField, MatLabel, MatInput } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatCheckbox } from '@angular/material/checkbox';
 
 @Component({
-  selector: 'app-upload-image-dialog',
-  templateUrl: 'upload-image-dialog.component.html',
-  styleUrls: ['./upload-image-dialog.component.scss']
+    selector: 'app-upload-image-dialog',
+    templateUrl: 'upload-image-dialog.component.html',
+    styleUrls: ['./upload-image-dialog.component.scss'],
+    imports: [MatDialogTitle, CdkScrollable, MatDialogContent, MatButton, MatFormField, MatLabel, MatInput, FormsModule, MatCheckbox, MatDialogActions]
 })
 export class UploadImageDialogComponent {
+  dialogRef = inject<MatDialogRef<UploadImageDialogComponent>>(MatDialogRef);
+  domSanitizer = inject(DomSanitizer);
+
   data: string | null = null;
   displayableData: SafeResourceUrl | null = null;
   name = '';
@@ -17,12 +28,6 @@ export class UploadImageDialogComponent {
   width = '20';
   height = '20';
   preserveAspectRatio = true;
-
-  constructor(
-    public dialogRef: MatDialogRef<UploadImageDialogComponent>,
-    public domSanitizer: DomSanitizer
-  ) {
-  }
   private importFile(file: File) {
     if (window.FileReader !== undefined) {
       const reader = new FileReader();
@@ -77,16 +82,15 @@ export class UploadImageDialogComponent {
 }
 
 @Component({
-  selector: 'app-upload-image',
-  templateUrl: './upload-image.component.html'
+    selector: 'app-upload-image',
+    templateUrl: './upload-image.component.html',
+    imports: [MatMiniFabButton, MatTooltip, MatIcon]
 })
 export class UploadImageComponent {
+  dialog = inject(MatDialog);
+
   @Output() addImage = new EventEmitter<Image>();
   @Output() cancel = new EventEmitter<void>();
-
-  constructor(
-    public dialog: MatDialog,
-  ) {}
 
   openDialog(): void {
     const dialogRef = this.dialog.open(UploadImageDialogComponent, {

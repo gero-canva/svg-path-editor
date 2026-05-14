@@ -1,16 +1,20 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from '@angular/core';
 import { Subject } from 'rxjs';
 import { buffer, map, throttleTime } from 'rxjs/operators';
 import { Image } from '../image';
 import { Point, SvgPath, SvgControlPoint, SvgItem, SvgPoint } from '../../lib/svg';
+import { NgClass, NgStyle } from '@angular/common';
 
 /* eslint-disable @angular-eslint/component-selector */
 @Component({
-  selector: '[app-canvas]',
-  templateUrl: './canvas.component.html',
-  styleUrls: ['./canvas.component.css']
+    selector: '[app-canvas]',
+    templateUrl: './canvas.component.html',
+    styleUrls: ['./canvas.component.css'],
+    imports: [NgClass, NgStyle]
 })
 export class CanvasComponent implements OnInit, OnChanges, AfterViewInit {
+  canvas = inject(ElementRef);
+
   get canvasWidth(): number { return this._canvasWidth; }
   set canvasWidth(canvasWidth: number) { this._canvasWidth = canvasWidth; this.canvasWidthChange.emit(this._canvasWidth); }
   get canvasHeight(): number { return this._canvasHeight; }
@@ -28,8 +32,6 @@ export class CanvasComponent implements OnInit, OnChanges, AfterViewInit {
   }
   get focusedImage(): Image | null { return this._focusedImage; }
   @Input() set focusedImage(focusedImage: Image | null) { this._focusedImage = focusedImage; this.focusedImageChange.emit(this.focusedImage); }
-
-  constructor(public canvas: ElementRef) { }
   @Input() parsedPath?: SvgPath;
   @Input() targetPoints: SvgPoint[] = [];
   @Input() controlPoints: SvgControlPoint[] = [];
@@ -314,7 +316,6 @@ export class CanvasComponent implements OnInit, OnChanges, AfterViewInit {
       event.stopPropagation();
       if (this.draggedImage && this.draggedEvt) {
         const oriPt = this.eventToLocation(this.draggedEvt);
-        /* eslint-disable no-bitwise */
         if (this.draggedImageType & 0b0001) {
           this.draggedImage.x1 += (pt.x - oriPt.x);
         }
@@ -327,7 +328,6 @@ export class CanvasComponent implements OnInit, OnChanges, AfterViewInit {
         if (this.draggedImageType & 0b1000) {
           this.draggedImage.y2 += (pt.y - oriPt.y);
         }
-        /* eslint-enable no-bitwise */
         this.draggedEvt = event;
 
       } else if (this.draggedPoint && this.parsedPath) {

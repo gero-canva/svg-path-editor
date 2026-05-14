@@ -1,8 +1,8 @@
-import { Component, AfterViewInit, HostListener, NgZone, OnDestroy, ViewChild } from '@angular/core';
+import { Component, AfterViewInit, HostListener, NgZone, OnDestroy, ViewChild, inject } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 import { SvgPath, SvgItem, Point, SvgPoint, SvgControlPoint, formatNumber } from '../lib/svg';
 import type { SvgCommandType, SvgCommandTypeAny } from '../lib/svg-command-types';
-import { MatIconRegistry } from '@angular/material/icon';
+import { MatIconRegistry, MatIcon } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import { StorageService } from './storage.service';
 import { CanvasComponent } from './canvas/canvas.component';
@@ -18,6 +18,18 @@ import { reversePath } from '../lib/reverse-path';
 import { optimizePath } from '../lib/optimize-path';
 import { changePathOrigin } from 'src/lib/change-path-origin';
 import { KEYBOARD } from './constants/keyboard.const';
+import { MatButton, MatMiniFabButton, MatIconButton } from '@angular/material/button';
+import { CdkScrollable } from '@angular/cdk/scrolling';
+import { ExpandableComponent } from './expandable/expandable.component';
+import { FormsModule } from '@angular/forms';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatMenuTrigger, MatMenu, MatMenuContent, MatMenuItem } from '@angular/material/menu';
+import { NgClass, NgStyle } from '@angular/common';
+import { FormatterDirective } from './formatter/formatter.directive';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { KeyboardNavigableDirective } from './keyboard-navigable/keyboard-navigable.directive';
+import { ImportComponent } from './import/import.component';
+import { MatSlider, MatSliderThumb } from '@angular/material/slider';
 
 export const kDefaultPath = `M 4 8 L 10 1 L 13 0 L 12 3 L 5 9 C 6 10 6 11 7 10 C 7 11 8 12 7 12 A 1.42 1.42 0 0 1 6 13 `
 + `A 5 5 0 0 0 4 10 Q 3.5 9.9 3.5 10.5 T 2 11.8 T 1.2 11 T 2.5 9.5 T 3 9 A 5 5 90 0 0 0 7 A 1.42 1.42 0 0 1 1 6 `
@@ -38,21 +50,26 @@ type EditorCommand = 'new-path'
 type TauriWindow = Window & { __TAURI_INTERNALS__?: unknown };
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
-  animations: [
-    trigger('leftColumnParent', [
-      transition(':enter', [])
-    ]),
-    trigger('leftColumn', [
-      state('*', style({'max-width': '310px'})),
-      transition(':enter', [style({'max-width': '0'}), animate('100ms ease')]),
-      transition(':leave', [animate('100ms ease', style({'max-width': '0'}))])
-    ])
-  ]
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.scss'],
+    animations: [
+        trigger('leftColumnParent', [
+            transition(':enter', [])
+        ]),
+        trigger('leftColumn', [
+            state('*', style({ 'max-width': '310px' })),
+            transition(':enter', [style({ 'max-width': '0' }), animate('100ms ease')]),
+            transition(':leave', [animate('100ms ease', style({ 'max-width': '0' }))])
+        ])
+    ],
+    imports: [MatButton, MatIcon, CdkScrollable, ExpandableComponent, FormsModule, MatTooltip, OpenComponent, SaveComponent, MatMiniFabButton, MatMenuTrigger, NgClass, FormatterDirective, MatCheckbox, KeyboardNavigableDirective, MatIconButton, NgStyle, UploadImageComponent, ExportComponent, ShareComponent, CanvasComponent, ImportComponent, MatMenu, MatMenuContent, MatMenuItem, MatSlider, MatSliderThumb]
 })
 export class AppComponent implements AfterViewInit, OnDestroy {
+  cfg = inject(ConfigService);
+  private storage = inject(StorageService);
+  private zone = inject(NgZone);
+
   // SvgPath path data model:
   parsedPath: SvgPath;
   targetPoints: SvgPoint[] = [];
@@ -113,13 +130,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   formatNumber = (v: number) => formatNumber(v, 4);
   private unlistenNativeCommand?: () => void;
 
-  constructor(
-    matRegistry: MatIconRegistry,
-    sanitizer: DomSanitizer,
-    public cfg: ConfigService,
-    private storage: StorageService,
-    private zone: NgZone
-  ) {
+  constructor() {
+    const matRegistry = inject(MatIconRegistry);
+    const sanitizer = inject(DomSanitizer);
+
     for (const icon of ['delete', 'logo', 'more', 'github', 'zoom_in', 'zoom_out', 'zoom_fit', 'sponsor']) {
       matRegistry.addSvgIcon(icon, sanitizer.bypassSecurityTrustResourceUrl(`./assets/${icon}.svg`));
     }
@@ -632,7 +646,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       if (autozoom) {
         this.zoomAuto();
       }
-    } catch (e) {
+    } catch {
       this.invalidSyntax = true;
       if (!this.parsedPath) {
         this.parsedPath = new SvgPath('');

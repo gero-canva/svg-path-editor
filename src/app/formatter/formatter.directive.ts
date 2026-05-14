@@ -1,17 +1,15 @@
-import { Directive, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Directive, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
 import { formatNumber } from '../../lib/svg';
 
-@Directive({
-  selector: '[appFormatter]'
-})
+@Directive({ selector: '[appFormatter]' })
 export class FormatterDirective implements OnChanges {
+  private el = inject<ElementRef<HTMLInputElement>>(ElementRef);
+
   @Input() formatterType: 'float'|'positive-float'|'integer'|'positive-integer' = 'float';
   @Input() numberValue = 0;
   @Input() suffix = '';
   @Output() numberValueChange = new EventEmitter<number>();
   internalValue = 0;
-
-  constructor(private el: ElementRef<HTMLInputElement>) { }
 
   private get viewValue(): string {
     return this.el.nativeElement.value;
@@ -42,7 +40,7 @@ export class FormatterDirective implements OnChanges {
   }
 
   @HostListener('input', ['$event'])
-  onInput(e: InputEvent) {
+  onInput(e: Event) {
     let value = '';
     if (this.formatterType === 'float') { value = this.viewValue.replace(/[\u066B,]/g, '.').replace(/[^\-0-9.eE]/g, ''); }
     if (this.formatterType === 'integer') { value = this.viewValue.replace(/[^\-0-9]/g, ''); }
